@@ -1,5 +1,5 @@
 {
-  "name": "express-boilerplate",
+  "name": "spaced-repetition",
   "version": "0.0.1",
   "description": "",
   "main": "src/server.js",
@@ -12,24 +12,23 @@
     "deploy": "git push heroku master"
   },
   "keywords": [],
-  "author": "Tom `tomatao` HT <tomht@thinkful.com>",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^6.2.0",
-    "express": "^4.16.4",
-    "helmet": "^3.15.0",
-    "jsonwebtoken": "^8.5.0",
-    "knex": "^0.16.3",
-    "morgan": "^1.9.1",
-    "pg": "^7.8.2"
+    "express": "^4.17.1",
+    "helmet": "^3.22.0",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.20.13",
+    "morgan": "^1.10.0",
+    "pg": "^7.18.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
-    "nodemon": "^1.18.9",
-    "postgrator-cli": "^3.1.0",
-    "supertest": "^3.3.0"
+    "nodemon": "^1.19.4",
+    "postgrator-cli": "^3.3.0",
+    "supertest": "^3.4.2"
   }
 }
