@@ -17,11 +17,7 @@ VALUES
 
 INSERT INTO "language" ("id", "name", "user_id")
 VALUES
-<<<<<<< HEAD
-  (1, 'Fremch', 1);
-=======
   (1, 'Spanish', 1);
->>>>>>> 9236892488380b599acfb6428037fd924341bc67
 
 INSERT INTO "word" ("id", "language_id", "original", "translation", "next")
 VALUES
