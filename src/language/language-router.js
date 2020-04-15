@@ -4,7 +4,7 @@ const express = require('express');
 const LanguageService = require('./language-service');
 const { requireAuth } = require('../middleware/jwt-auth');
 
-const { LinkedList } = require('../linkedList');
+const LinkedList = require('./LinkedList');
 
 const bodyParser = express.json();
 
@@ -51,121 +51,67 @@ languageRouter
 
 languageRouter
   .get('/head', async (req, res, next) => {
+    LanguageService.getLanguageHead(
+      req.app.get('db'),
+      req.language.head
+    )
+      .then(nextHead => {
+        const { correct_count, incorrect_count, original } = nextHead;
+        const output = {
+          nextWord: original,
+          totalScore: req.language.total_score,
+          wordCorrectCount: correct_count,
+          wordIncorrectCount: incorrect_count
+        };
+        res.json(output);
+      })
+      .catch(next);
+  });
+
+languageRouter
+  .post('/guess', bodyParser, async (req, res, next) => {
+    const { guess } = req.body;
+
+    if(!guess) {
+      return res.status(400).json({
+        error: 'Missing \'guess\' in request body'
+      });
+    }
+
     try {
       const words = await LanguageService.getLanguageWords(
         req.app.get('db'),
         req.language.id
       );
-      const firstWord = words[0];
-      res.json({
-        nextWord: firstWord.original,
-        totalScore: req.language.total_score,
-        wordCorrectCount: firstWord.correct_count,
-        wordIncorrectCount: firstWord.incorrect_count
-      });
-      next();
-    } catch (error) {
-      next(error);
-    }
-  });
 
-languageRouter
-  .post('/guess', bodyParser, async (req, res, next) => {
-    try {
-      const { guess } = req.body;
+      let SLL = await LanguageService.createLinkedList(req.language, words);
 
-      const linkedList = new LinkedList;
-
-      const words = await LanguageService.populateLinkedList(
-        req.app.get('db'),
-        req.language.id,
-        linkedList
-      );
-
-      let response = {
-        nextWord: words[1].original,
-        wordCorrectCount: words[1].correct_count,
-        wordIncorrectCount: words[1].incorrect_count,
-        totalScore: req.language.total_score,
-        answer: words[0].translation,
-        isCorrect: false
-      };
-
-      if(guess === '' || !(req.body.hasOwnProperty('guess'))) {
-        return res.status(400).json({
-          error: 'Missing \'guess\' in request body',
-        });
-      }
-
-      if(guess == linkedList.head.value.translation) {
-        linkedList.head.value.memory_value *= 2;
-
-        linkedList.head.value.correct_count++;
-
-        req.language.total_score += 1;
-
-        response = {
-          ...response,
-          isCorrect: true
-        };
+      const answer = SLL.head.value.translation.toLowerCase();
+      let isCorrect;
+      if(guess.toLowerCase() === answer) {
+        isCorrect = true;
+        SLL.head.value.memory_value *= 2;
+        SLL.head.value.correct_count++;
+        SLL.total_score++;
       } else {
-        linkedList.head.value.incorrect_count++;
-
-        linkedList.head.value.memory_value = 1;
-
-        response = {
-          ...response,
-          isCorrect: false
-        };
+        isCorrect = false;
+        SLL.head.value.memory_value = 1;
+        SLL.head.value.incorrect_count++;
       }
 
-      let m = linkedList.head.value.memory_value;
-      let temp = linkedList.head;
+      const relocateWords = await SLL.relocateHead(SLL.head.value.memory_value);
 
-      while(temp.next !== null && m > 0) {
-        let tOriginal = temp.value.original;
-        let tTranslation = temp.value.translation;
-        let tCorrectCount = temp.value.correct_count;
-        let tIncorrectCount = temp.value.incorrect_count;
-        let tm = temp.value.memory_value;
+      await LanguageService.updateTotalScore(req.app.get('db'), SLL);
+      await LanguageService.updateWords(req.app.get('db'), relocateWords);
 
-        temp.value.original = temp.next.value.original;
-        temp.value.translation = temp.next.value.translation;
-        temp.value.correct_count = temp.next.value.correct_count;
-        temp.value.incorrect_count = temp.next.value.incorrect_count;
-        temp.value.memory_value = temp.next.value.memory_value;
-
-        temp.next.value.original = tOriginal;
-        temp.next.value.translation = tTranslation;
-        temp.next.value.correct_count = tCorrectCount;
-        temp.next.value.incorrect_count = tIncorrectCount;
-        temp.next.value.memory_value = tm;
-        temp = temp.next;
-        m--;
-      }
-
-      let arrTemp = linkedList.head;
-
-      let linkArr = [];
-
-      while(arrTemp) {
-        linkArr.push(arrTemp.value);
-
-        arrTemp = arrTemp.next;
-      }
-
-      LanguageService.insertNewLinkedList(
-        req.app.get('db'), 
-        linkArr
-      );
-      LanguageService.updateLanguageTotalScore(
-        req.app.get('db'), 
-        req.language
-      );
-
-      res.json(response);
-
-      next();
+      return res.status(200).json({
+        nextWord: SLL.head.value.original,
+        wordCorrectCount: SLL.head.value.correct_count,
+        wordIncorrectCount: SLL.head.value.incorrect_count,
+        totalScore: SLL.total_score,
+        answer,
+        isCorrect
+      });
     } catch (error) {
       next(error);
     }

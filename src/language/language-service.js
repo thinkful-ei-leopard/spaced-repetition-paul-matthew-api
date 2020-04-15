@@ -1,3 +1,5 @@
+const LinkedList = require('./LinkedList');
+
 const LanguageService = {
   getUsersLanguage(db, user_id) {
     return db
@@ -29,23 +31,75 @@ const LanguageService = {
       .where({ language_id });
   },
 
-  async populateLinkedList(db, language_id, ll) {
-    const words = await this.getLanguageWords(db, language_id);
-
-    words.map(word => ll.insertLast(word));
-
-    return words;
+  getLanguageHead(db, language_id) {
+    return db
+      .from('word')
+      .select(
+        'id',
+        'language_id',
+        'original',
+        'translation',
+        'next',
+        'memory_value',
+        'correct_count',
+        'incorrect_count'
+      )
+      .where({ language_id })
+      .first();
   },
 
-  async insertNewLinkedList(db, ll) {
-    for(let i = 0; i < ll.length; i++) {
-      await db('word').where('id', ll[i].id).update(ll[i]);
+  createLinkedList(language, words) {
+    const SLL = new LinkedList(
+      language.user_id,
+      language.id,
+      language.total_score
+    );
+    let word = { next: language.head };
+    while (word.next) {
+      word = words.find(w => w.id === word.next);
+      SLL.insertLast({
+        id: word.id,
+        original: word.original,
+        translation: word.translation,
+        memory_value: word.memory_value,
+        correct_count: word.correct_count,
+        incorrect_count: word.incorrect_count
+      });
     }
-    return;
+    return SLL;
   },
 
-  async updateLanguageTotalScore(db, language) {
-    await db('language').where('user_id', language.user_id).andWhere('id', language.id).update({total_score: language.total_score});
+  updateWords(db, updatedNodes) {
+    return db.transaction(trx => {
+      let queries = [];
+      updatedNodes.forEach(node => {
+        const query = db
+          .from('word')
+          .where('id', node.value.id)
+          .update({
+            memory_value: node.value.memory_value,
+            correct_count: node.value.correct_count,
+            incorrect_count: node.value.incorrect_count,
+            next: node.next.value.id
+          })
+          .transacting(trx);
+        queries.push(query);
+      });
+
+      Promise.all(queries)
+        .then(trx.commit)
+        .catch(trx.rollback);
+    });
+  },
+
+  updateTotalScore(db, linkedLanguage) {
+    return db
+      .from('language')
+      .where('user_id', linkedLanguage.user_id)
+      .update({
+        total_score: linkedLanguage.total_score,
+        head: linkedLanguage.head.value.id
+      });
   }
 };
 
