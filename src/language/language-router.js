@@ -51,12 +51,13 @@ languageRouter
 
 languageRouter
   .get('/head', async (req, res, next) => {
+    console.log(req.language)
     LanguageService.getLanguageHead(
       req.app.get('db'),
       req.language.head
     )
       .then(nextHead => {
-        const { correct_count, incorrect_count, original, total_score } = nextHead;
+        const { correct_count, incorrect_count, original, total_score } = nextHead.rows[0];
         const output = {
           nextWord: original,
           totalScore: total_score,
