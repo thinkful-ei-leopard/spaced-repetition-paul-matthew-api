@@ -31,21 +31,11 @@ const LanguageService = {
       .where({ language_id });
   },
 
-  getLanguageHead(db, language_id) {
+  getLanguageHead(db, head) {
     return db
-      .from('word')
-      .select(
-        'id',
-        'language_id',
-        'original',
-        'translation',
-        'next',
-        'memory_value',
-        'correct_count',
-        'incorrect_count'
-      )
-      .where({ language_id })
-      .first();
+      .raw(`SELECT original, correct_count, incorrect_count, total_score
+      FROM word w JOIN "language" l ON w.language_id = l.id
+      WHERE w.id = ${head};`);
   },
 
   createLinkedList(language, words) {

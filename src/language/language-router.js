@@ -56,10 +56,10 @@ languageRouter
       req.language.head
     )
       .then(nextHead => {
-        const { correct_count, incorrect_count, original } = nextHead;
+        const { correct_count, incorrect_count, original, total_score } = nextHead;
         const output = {
           nextWord: original,
-          totalScore: req.language.total_score,
+          totalScore: total_score,
           wordCorrectCount: correct_count,
           wordIncorrectCount: incorrect_count
         };
