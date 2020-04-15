@@ -101,6 +101,7 @@ languageRouter
 
       const relocateWords = await SLL.relocateHead(SLL.head.value.memory_value);
 
+      await LanguageService.updateHead(req.app.get('db'), req.language.id, SLL.head.id);
       await LanguageService.updateTotalScore(req.app.get('db'), SLL);
       await LanguageService.updateWords(req.app.get('db'), relocateWords);
 

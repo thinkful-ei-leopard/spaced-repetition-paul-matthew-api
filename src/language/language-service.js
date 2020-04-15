@@ -90,6 +90,12 @@ const LanguageService = {
         total_score: linkedLanguage.total_score,
         head: linkedLanguage.head.value.id
       });
+  },
+
+  updateHead(db, id, head) {
+    db('language')
+      .where({ id })
+      .update({ head });
   }
 };
 
