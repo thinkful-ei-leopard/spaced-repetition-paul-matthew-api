@@ -40,6 +40,9 @@ class LinkedList {
   _findNthElement(position) {
     let node = this.head;
     for (let i = 0; i < position; i++) {
+      if (node.next === null) {
+        return node;
+      }
       node = node.next;
     }
     return node;
@@ -58,7 +61,7 @@ class LinkedList {
   size(list) {
     let nodeCounter = 1;
     if (list.head === null) {
-      return console.log('Empty list');
+      return 
     }
     let currentNode = list.head;
     while (currentNode.next !== null) {
