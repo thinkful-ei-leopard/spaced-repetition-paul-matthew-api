@@ -30,19 +30,7 @@ const LanguageService = {
   },
 
   async populateLinkedList(db, language_id, ll) {
-    const words = await db
-      .from('word')
-      .select(
-        'id',
-        'language_id',
-        'original',
-        'translation',
-        'next',
-        'memory_value',
-        'correct_count',
-        'incorrect_count'
-      )
-      .where({ language_id });
+    const words = await this.getLanguageWords(db, language_id);
 
     words.map(word => ll.insertLast(word));
 
