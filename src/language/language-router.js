@@ -96,14 +96,14 @@ languageRouter.post('/guess', bodyParser, async (req, res, next) => {
       SLL.head.value.memory_value = 1;
       SLL.head.value.incorrect_count++;
     }
-    console.log(SLL.head.value.memory_value);
+
     const relocateWords = await SLL.relocateHead(SLL.head.value.memory_value);
 
-    // await LanguageService.updateHead(
-    //   req.app.get('db'),
-    //   req.language.id,
-    //   SLL.head.id
-    // );
+    await LanguageService.updateHead(
+      req.app.get('db'),
+      req.language.id,
+      SLL.head.id
+    );
     await LanguageService.updateTotalScore(req.app.get('db'), SLL);
     await LanguageService.updateWords(req.app.get('db'), relocateWords);
 
