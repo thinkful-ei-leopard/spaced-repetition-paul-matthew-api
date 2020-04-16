@@ -69,7 +69,7 @@ const LanguageService = {
             memory_value: node.value.memory_value,
             correct_count: node.value.correct_count,
             incorrect_count: node.value.incorrect_count,
-            next: node.next.value.id
+            next: node.next ? node.next.value.id : null,
           })
           .transacting(trx);
         queries.push(query);

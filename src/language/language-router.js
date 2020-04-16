@@ -19,7 +19,7 @@ languageRouter.use(requireAuth).use(async (req, res, next) => {
 
     if (!language)
       return res.status(404).json({
-        error: 'You don\'t have any languages',
+        error: "You don't have any languages",
       });
 
     req.language = language;
@@ -71,7 +71,7 @@ languageRouter.post('/guess', bodyParser, async (req, res, next) => {
 
   if (!guess) {
     return res.status(400).json({
-      error: 'Missing \'guess\' in request body',
+      error: "Missing 'guess' in request body",
     });
   }
 
@@ -83,9 +83,9 @@ languageRouter.post('/guess', bodyParser, async (req, res, next) => {
 
     let SLL = await LanguageService.createLinkedList(req.language, words);
 
-    const answer = SLL.head.value.translation.toLowerCase();
+    const answer = SLL.head.value.translation;
     let isCorrect;
-    if (guess.toLowerCase() === answer) {
+    if (guess.toLowerCase() === answer.toLowerCase()) {
       isCorrect = true;
       SLL.head.value.memory_value *= 2;
       SLL.head.value.correct_count++;
