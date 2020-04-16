@@ -61,7 +61,7 @@ class LinkedList {
   size(list) {
     let nodeCounter = 1;
     if (list.head === null) {
-      return console.log('Empty list');
+      return;
     }
     let currentNode = list.head;
     while (currentNode.next !== null) {
