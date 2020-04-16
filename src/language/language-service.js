@@ -31,79 +31,63 @@ const LanguageService = {
       .where({ language_id });
   },
 
-  populate(db, language_id, word_id){
-    return db.raw(`SELECT original, "next"
-    FROM word w JOIN "language" l ON w.language_id = l.id
-    where l.id = ${language_id}
-    and w.id = ${word_id}`);
+  getLanguageHead(db, head) {
+    return db.raw(`SELECT original, correct_count, incorrect_count, total_score
+      FROM word w JOIN "language" l ON w.language_id = l.id
+      WHERE w.id = ${head};`);
   },
 
-  getTrans(db, language_id, word){
-    return db.raw(`SELECT "translation"
-    FROM word w JOIN "language" l ON w.language_id = l.id
-    where l.id = ${language_id}
-    and original = '${word}';`);
+  createLinkedList(language, words) {
+    const SLL = new LinkedList(
+      language.user_id,
+      language.id,
+      language.total_score
+    );
+    let word = { next: language.head };
+    while (word.next) {
+      word = words.find((w) => w.id === word.next);
+      SLL.insertLast({
+        id: word.id,
+        original: word.original,
+        translation: word.translation,
+        memory_value: word.memory_value,
+        correct_count: word.correct_count,
+        incorrect_count: word.incorrect_count,
+      });
+    }
+    return SLL;
   },
 
-  getValues(db, language_id, word){
-    return db.raw(`SELECT memory_value, correct_count, incorrect_count, total_score
-    FROM word w JOIN "language" l ON w.language_id = l.id
-    where l.id = ${language_id}
-    and original = '${word}';`);
+  updateWords(db, updatedNodes) {
+    return db.transaction((trx) => {
+      let queries = [];
+      updatedNodes.forEach((node) => {
+        const query = db
+          .from('word')
+          .where('id', node.value.id)
+          .update({
+            memory_value: node.value.memory_value,
+            correct_count: node.value.correct_count,
+            incorrect_count: node.value.incorrect_count,
+            next: node.next.value.id
+          })
+          .transacting(trx);
+        queries.push(query);
+      });
+
+      Promise.all(queries).then(trx.commit).catch(trx.rollback);
+    });
   },
 
-  setValues(db, language_id, word, values){
-    db.raw(`BEGIN;
-    UPDATE
-      word
-    SET
-        memory_value = ${values.memory_value}, 
-        correct_count = ${values.correct_count}, 
-        incorrect_count = ${values.incorrect_count}
-    WHERE
-      language_id = ${language_id} and original = '${word}';
-    
-    UPDATE
-      "language"
-    SET
-      total_score = ${values.total_score}
-    WHERE
-      id = ${language_id};
-    
-    COMMIT;`).then();
+  updateTotalScore(db, linkedLanguage) {
+    return db.from('language').where('user_id', linkedLanguage.user_id).update({
+      total_score: linkedLanguage.total_score,
+      head: linkedLanguage.head.value.id,
+    });
   },
 
-  getWordID(db, language_id, word){
-    return db.raw(`select id
-    from word
-    where original = '${word}'
-    and language_id = ${language_id}`);
-  },
-
-  getNextID(db, language_id, word_id){
-    return db.raw(`select "next"
-    from word
-    where id = ${word_id}
-    and language_id = ${language_id}`);
-  },
-
-  setHead(db, id, head){
-    db.raw(`update "language"
-    set head = ${head}
-    where id = ${id}`).then();
-  },
-
-  savePlacement(db, current_id, next_id, next_next){
-    db.raw(`begin;
-    UPDATE word 
-    SET "next" = ${current_id}
-    WHERE id = ${next_id};
-    
-    UPDATE word 
-    SET "next" = ${next_next}
-    WHERE id = ${current_id};
-    
-    commit;`).then();
+  updateHead(db, id, head) {
+    db('language').where({ id }).update({ head });
   },
 };
 
