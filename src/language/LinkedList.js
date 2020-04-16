@@ -40,6 +40,9 @@ class LinkedList {
   _findNthElement(position) {
     let node = this.head;
     for (let i = 0; i < position; i++) {
+      if(!node.next) {
+        return node;
+      }
       node = node.next;
     }
     return node;
