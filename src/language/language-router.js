@@ -4,8 +4,6 @@ const express = require('express');
 const LanguageService = require('./language-service');
 const { requireAuth } = require('../middleware/jwt-auth');
 
-const LinkedList = require('./LinkedList');
-
 const bodyParser = express.json();
 
 const languageRouter = express.Router();
@@ -19,7 +17,7 @@ languageRouter.use(requireAuth).use(async (req, res, next) => {
 
     if (!language)
       return res.status(404).json({
-        error: "You don't have any languages",
+        error: 'You don\'t have any languages',
       });
 
     req.language = language;
@@ -71,7 +69,7 @@ languageRouter.post('/guess', bodyParser, async (req, res, next) => {
 
   if (!guess) {
     return res.status(400).json({
-      error: "Missing 'guess' in request body",
+      error: 'Missing \'guess\' in request body',
     });
   }
 

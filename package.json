@@ -12,6 +12,9 @@
     "deploy": "git push heroku master"
   },
   "keywords": [],
+  "engines": {
+    "node": "13.9.0"
+  },
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
