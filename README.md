@@ -5,8 +5,6 @@ Live app:
 
 Client repo: https://github.com/thinkful-ei-leopard/spaced-repetition-paul-matthew
 
-## <img src="./src/screenshots/dashboard.png" align="center" alt="Dashboard View" title="Dashboard View">
-
 ## Summary
 
 <i>Language Teacher</i> is an app for learning new languages using the spaced-repetition revision technique, which is implemented using a linked list to keep track of right and wrong answers.
@@ -46,6 +44,8 @@ POST
 ### /api/auth
  
  Used for user registration/login authentication
+
+ ## <img src="./src/screenshots/dashboard.png" align="center" alt="Dashboard View" title="Dashboard View">
 
 ## Authors
 [Matthew Wagaman](https://github.com/AveraqeDev) and [Paul Baisley](https://github.com/wavinginspace)
