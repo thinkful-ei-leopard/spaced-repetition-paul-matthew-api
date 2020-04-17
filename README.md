@@ -1,52 +1,63 @@
-# Spaced repetition API!
 
-## Local dev setup
+# Language Teacher
 
-If using user `dunder-mifflin`:
+Live app:
 
-```bash
-mv example.env .env
-createdb -U dunder-mifflin spaced-repetition
-createdb -U dunder-mifflin spaced-repetition-test
-```
+Client repo: https://github.com/thinkful-ei-leopard/spaced-repetition-paul-matthew
 
-If your `dunder-mifflin` user has a password be sure to set it in `.env` for all appropriate fields. Or if using a different user, update appropriately.
+## Summary
 
-```bash
-npm install
-npm run migrate
-env MIGRATION_DB_NAME=spaced-repetition-test npm run migrate
-```
+<i>Language Teacher</i> is an app for learning new languages using the spaced-repetition revision technique, which is implemented using a linked list to keep track of right and wrong answers.
 
-And `npm test` should work at this point
+Users can sign up and login to their personal dashboard, where they can see their current language, current total correct and incorrect scores, along with a list of words to practice and a button to start practicing. Clicking on a word in the dashboard will reveal how many times that word has been answered correctly and incorrectly.
 
-## Configuring Postgres
+Once a learning session has begun, users will be shown a series of words from the list to translate using text input. Users are then shown a response view, where they are shown whether or not they were correct, what the correct translation is, and how they answered. They will also be shown a button to try the next word. Clicking the 'Try Later' button from the question view will return user to dashboard.
 
-For tests involving time to run properly, configure your Postgres database to run in the UTC timezone.
+This a demo a version of the app currently in beta. Upcoming features will include:
 
-1. Locate the `postgresql.conf` file for your Postgres installation.
-   1. E.g. for an OS X, Homebrew install: `/usr/local/var/postgres/postgresql.conf`
-   2. E.g. on Windows, _maybe_: `C:\Program Files\PostgreSQL\11.2\data\postgresql.conf`
-   3. E.g  on Ubuntu 18.04 probably: '/etc/postgresql/10/main/postgresql.conf'
-2. Find the `timezone` line and set it to `UTC`:
+- ability to learn multiple languages
+- ability to add or delete words
+- ability to filter/sort words alphabetically, by score, or by date added.
 
-```conf
-# - Locale and Formatting -
+## Technology Used
 
-datestyle = 'iso, mdy'
-#intervalstyle = 'postgres'
-timezone = 'UTC'
-#timezone_abbreviations = 'Default'     # Select the set of available time zone
-```
+- React
+- Node
+- Express
+- PostgreSQL
+- SCSS
 
-## Scripts
+## Authors
+Matthew Wagaman and Paul Baisley
 
-Start the application `npm start`
+## Endpoints
 
-Start nodemon for the application `npm run dev`
+### /api/auth
+ 
+ Used for user registration/login authentication
 
-Run the tests mode `npm test`
+### /api/language
+GET
+  * Returns a JSON object with the current language and an array of words associated with that language.
 
-Run the migrations up `npm run migrate`
+### /api/language/head
+GET
+   * Returns a JSON object with the next word, total score, and correct and incorrect counts for that word.
 
-Run the migrations down `npm run migrate -- 0`
+### /api/language/guess
+POST
+* Posts user's response to a word translation question.
+
+## Screenshots
+
+## <img src="./src/images/screenshots/dashboard.png" align="center" alt="Dashboard View" title="Dashboard View">
+
+## <img src="./src/images/screenshots/question.png" align="center" alt="Question View" title="Question View">
+
+## <img src="./src/images/screenshots/correct.png" align="center" alt="Correct Answer View" title="Correct Answer View">
+
+## <img src="./src/images/screenshots/incorrect.png" align="center" alt="Incorrect Answer View" title="Incorrect Answer View">
+
+## <img src="./src/images/screenshots/signup.png" align="center" alt="Sign Up View" title="Sign Up View">
+
+## <img src="./src/images/screenshots/login.png" align="center" alt="Login View" title="Login View">
