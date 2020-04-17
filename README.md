@@ -1,7 +1,7 @@
 
 # Language Teacher
 
-Live app:
+Live app: https://language-teacher.now.sh/
 
 Client repo: https://github.com/thinkful-ei-leopard/spaced-repetition-paul-matthew
 
